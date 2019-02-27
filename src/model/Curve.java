@@ -3,7 +3,7 @@
  * LICENSE.txt for details.
  */
 
-package controller;
+package model;
 
 
 import java.util.ArrayList;
