@@ -13,8 +13,8 @@ public class WekaConstants {
     public static final String PRECISION = "Precision";
     public static final String RECALL = "Recall";
     public static final String FALSE_POSITIVE_RATE = "False Positive Rate";
-    public static final String TRUE_POSITIVE_RATE = "False Positive Rate";
-    public static final String THRESHOLD = "threshold";
+    public static final String TRUE_POSITIVE_RATE = "True Positive Rate";
+    public static final String THRESHOLD = "Threshold";
 
 
     public static final String ROC = "ROC";

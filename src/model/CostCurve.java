@@ -33,7 +33,7 @@ public class CostCurve implements RevisionHandler {
         if (threshInst.size() != 0 ) {
             Instances insts = makeHeader();
             int fpind = threshInst.attribute(WekaConstants.FALSE_POSITIVE_RATE).index();
-            int tpind = threshInst.attribute(WekaConstants.TRUE_POSITIVES).index();
+            int tpind = threshInst.attribute(WekaConstants.TRUE_POSITIVE_RATE).index();
             int threshind = threshInst.attribute(WekaConstants.THRESHOLD).index();
 
             for(int i = 0; i < threshInst.numInstances(); ++i) {
