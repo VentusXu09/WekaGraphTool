@@ -32,9 +32,9 @@ public class CostCurve implements RevisionHandler {
     public static Instances getCurve(Instances threshInst) {
         if (threshInst.size() != 0 ) {
             Instances insts = makeHeader();
-            int fpind = threshInst.attribute("False Positive Rate").index();
-            int tpind = threshInst.attribute("True Positive Rate").index();
-            int threshind = threshInst.attribute("Threshold").index();
+            int fpind = threshInst.attribute(WekaConstants.FALSE_POSITIVE_RATE).index();
+            int tpind = threshInst.attribute(WekaConstants.TRUE_POSITIVES).index();
+            int threshind = threshInst.attribute(WekaConstants.THRESHOLD).index();
 
             for(int i = 0; i < threshInst.numInstances(); ++i) {
                 double fpval = threshInst.instance(i).value(fpind);
@@ -54,9 +54,9 @@ public class CostCurve implements RevisionHandler {
 
     private static Instances makeHeader() {
         ArrayList<Attribute> fv = new ArrayList();
-        fv.add(new Attribute("Probability Cost Function"));
-        fv.add(new Attribute("Normalized Expected Cost"));
-        fv.add(new Attribute("Threshold"));
-        return new Instances("CostCurve", fv, 100);
+        fv.add(new Attribute(WekaConstants.PROBABILITY_COSY_FUNCTION));
+        fv.add(new Attribute(WekaConstants.NORMALIZED_EXPECTED_COST));
+        fv.add(new Attribute(WekaConstants.THRESHOLD));
+        return new Instances(WekaConstants.COST_CURVE, fv, 100);
     }
 }
