@@ -33,9 +33,9 @@ import java.util.List;
 public class MyFrame extends JFrame implements ActionListener {
     private JTextArea ta;
     private JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-    private JButton bOpen, bGenerate;
+    private JButton bOpen, bGenerate, bClear;
     private JScrollPane ps;
-    private File[] selectedFiles;
+    ArrayList<File> filesList=new ArrayList<>();
 
     public MyFrame() {
         jfc.setMultiSelectionEnabled(true);//支持多选
@@ -50,9 +50,12 @@ public class MyFrame extends JFrame implements ActionListener {
         ps = new JScrollPane(ta);
         bOpen = new JButton("选择文件");
         bGenerate = new JButton("生成图片");
+        bClear =new JButton("清空文件");
         bOpen.addActionListener(this);
+        bClear.addActionListener(this);
         bGenerate.addActionListener(this);
         this.add(bOpen);
+        this.add(bClear);
         this.add(bGenerate);
         this.add(ps);
         this.setTitle("weka图片生成存储器");
@@ -78,9 +81,9 @@ public class MyFrame extends JFrame implements ActionListener {
                 //
             } else {
 
-                selectedFiles = jfc.getSelectedFiles();
+                filesList.addAll(Arrays.asList(jfc.getSelectedFiles()));
                 System.out.println("已选中文件\n");
-                Arrays.asList(selectedFiles).forEach(x -> {
+                filesList.forEach(x -> {
                     String name = x.getName();
                     System.out.println(name);
                     ta.append(name);
@@ -91,6 +94,11 @@ public class MyFrame extends JFrame implements ActionListener {
         } else if (jbt == bGenerate) {//单击生成图片按钮
             readArffDataAndGenerate();
         }
+        else if(jbt==bClear)
+        {
+            filesList.clear();
+            ta.setText("");
+        }
     }
 
     public void readArffDataAndGenerate() {
@@ -99,7 +107,7 @@ public class MyFrame extends JFrame implements ActionListener {
         DefaultXYDataset CCxyDataSet = new DefaultXYDataset();
         int index = 0;
 
-        for (File x : selectedFiles) {
+        for (File x : filesList) {
             String filePath = x.getAbsolutePath();
             try {
                 Instances data = new Instances(
@@ -107,19 +115,19 @@ public class MyFrame extends JFrame implements ActionListener {
                                 new FileReader(filePath)));
                 data.setClassIndex(data.numAttributes() - 1);
 
-                //ROC
-                ROCxydataSet = createCurve(ROCxydataSet, data, index, WekaConstants.FALSE_POSITIVES, WekaConstants.TRUE_POSITIVES);
                 //AUC for ROC
                 Double auc = ThresholdCurve.getROCArea(data);
+                //ROC
+                ROCxydataSet = createCurve(ROCxydataSet, data, index, WekaConstants.FALSE_POSITIVES, WekaConstants.TRUE_POSITIVES,auc);
 
-                //PRC
-                PRCxydataSet = createCurve(PRCxydataSet, data, index, WekaConstants.RECALL, WekaConstants.PRECISION);
                 //AUC for PRC
                 Double aucPRC = ThresholdCurve.getPRCArea(data);
+                //PRC
+                PRCxydataSet = createCurve(PRCxydataSet, data, index, WekaConstants.RECALL, WekaConstants.PRECISION,auc);
 
                 //Cost Curve
                 Instances ccResult = CostCurve.getCurve(data);
-                CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION);
+                CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION,-1);
 
 
             } catch (Exception e) {
@@ -132,7 +140,7 @@ public class MyFrame extends JFrame implements ActionListener {
         generatePic(CCxyDataSet, WekaConstants.COST_CURVE, WekaConstants.PROBABILITY_COSY_FUNCTION, WekaConstants.NORMALIZED_EXPECTED_COST);
     }
 
-    public DefaultXYDataset getData(DefaultXYDataset dataSet, java.util.List xList, java.util.List yList, int index) {
+    public DefaultXYDataset getData(DefaultXYDataset dataSet, java.util.List xList, java.util.List yList, int index,double auc) {
         if (xList.size() > 0) {
             int size = xList.size();
             double[][] datas = new double[2][size];
@@ -141,7 +149,13 @@ public class MyFrame extends JFrame implements ActionListener {
                 datas[1][i] = (double) yList.get(i);
 
             }
-            dataSet.addSeries(index, datas);
+            if(auc==-1)
+            dataSet.addSeries(filesList.get(index).getName(), datas);
+            else
+            {
+                String info="["+filesList.get(index).getName()+" auc="+auc+"]";
+                dataSet.addSeries(info, datas);
+            }
         }
         return dataSet;
     }
@@ -309,7 +323,7 @@ public class MyFrame extends JFrame implements ActionListener {
         return ret;
     }
 
-    public DefaultXYDataset createCurve(DefaultXYDataset result, Instances inst, int index, String xName, String yName) {
+    public DefaultXYDataset createCurve(DefaultXYDataset result, Instances inst, int index, String xName, String yName,double auc) {
         if (inst.size() != 0) {
             int xIndex = 0;
             int yIndex = 0;
@@ -332,7 +346,7 @@ public class MyFrame extends JFrame implements ActionListener {
                 psfList.add(inst.instance(i).value(yIndex));
             }
 
-            result = getData(result, necList, psfList, index);
+            result = getData(result, necList, psfList, index,auc);
         }
         return result;
     }
