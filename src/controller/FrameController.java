@@ -28,17 +28,19 @@ import java.util.List;
  * Created by Ventus Xu on 2019/2/23.
  */
 public class FrameController  {
-    public FrameController() {
+    private List<File> fileList = new ArrayList<>();
 
+    public FrameController(ArrayList<File> selectedFiles) {
+        this.fileList = selectedFiles;
     }
 
-    public void readArffDataAndGenerate(File[] selectedFiles) {
+    public void readArffDataAndGenerate() {
         DefaultXYDataset ROCxydataSet = new DefaultXYDataset();
         DefaultXYDataset PRCxydataSet = new DefaultXYDataset();
         DefaultXYDataset CCxyDataSet = new DefaultXYDataset();
         int index = 0;
 
-        for (File x : selectedFiles) {
+        for (File x : fileList) {
             String filePath = x.getAbsolutePath();
             try {
                 Instances data = new Instances(
@@ -47,18 +49,20 @@ public class FrameController  {
                 data.setClassIndex(data.numAttributes() - 1);
 
                 //ROC
-                ROCxydataSet = createCurve(ROCxydataSet, data, index, WekaConstants.FALSE_POSITIVES, WekaConstants.TRUE_POSITIVES);
+
                 //AUC for ROC
                 Double auc = ThresholdCurve.getROCArea(data);
+                ROCxydataSet = createCurve(ROCxydataSet, data, index, WekaConstants.FALSE_POSITIVES, WekaConstants.TRUE_POSITIVES, auc);
 
                 //PRC
-                PRCxydataSet = createCurve(PRCxydataSet, data, index, WekaConstants.RECALL, WekaConstants.PRECISION);
+
                 //AUC for PRC
                 Double aucPRC = ThresholdCurve.getPRCArea(data);
+                PRCxydataSet = createCurve(PRCxydataSet, data, index, WekaConstants.RECALL, WekaConstants.PRECISION, aucPRC);
 
                 //Cost Curve
                 Instances ccResult = CostCurve.getCurve(data);
-                CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION);
+                CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION, -1);
 
 
             } catch (Exception e) {
@@ -71,7 +75,7 @@ public class FrameController  {
         generatePic(CCxyDataSet, WekaConstants.COST_CURVE, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION);
     }
 
-    public DefaultXYDataset getData(DefaultXYDataset dataSet, java.util.List xList, java.util.List yList, int index) {
+    public DefaultXYDataset getData(DefaultXYDataset dataSet, java.util.List xList, java.util.List yList, int index, double auc) {
         if (xList.size() > 0) {
             int size = xList.size();
             double[][] datas = new double[2][size];
@@ -80,7 +84,13 @@ public class FrameController  {
                 datas[1][i] = (double) yList.get(i);
 
             }
-            dataSet.addSeries(index, datas);
+            if(-1 == auc)
+                dataSet.addSeries(fileList.get(index).getName(), datas);
+            else
+            {
+                String info="[" + fileList.get(index).getName() + " auc = " + auc + "]";
+                dataSet.addSeries(info, datas);
+            }
         }
         return dataSet;
     }
@@ -237,7 +247,7 @@ public class FrameController  {
 
     }
 
-    public DefaultXYDataset createCurve(DefaultXYDataset result, Instances inst, int index, String xName, String yName) {
+    public DefaultXYDataset createCurve(DefaultXYDataset result, Instances inst, int index, String xName, String yName, double auc) {
         if (inst.size() != 0) {
             int xIndex = 0;
             int yIndex = 0;
@@ -260,7 +270,7 @@ public class FrameController  {
                 psfList.add(inst.instance(i).value(yIndex));
             }
 
-            result = getData(result, necList, psfList, index);
+            result = getData(result, necList, psfList, index, auc);
         }
         return result;
     }

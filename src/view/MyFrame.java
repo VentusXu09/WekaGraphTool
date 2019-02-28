@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -18,9 +19,9 @@ import java.util.Arrays;
 public class MyFrame extends JFrame implements ActionListener {
     private JTextArea ta;
     private JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-    private JButton bOpen, bGenerate;
+    private JButton bOpen, bGenerate, bClear;
     private JScrollPane ps;
-    private File[] selectedFiles;
+    ArrayList<File> filesList=new ArrayList<>();
 
     public MyFrame() {
         jfc.setMultiSelectionEnabled(true);//支持多选
@@ -35,9 +36,12 @@ public class MyFrame extends JFrame implements ActionListener {
         ps = new JScrollPane(ta);
         bOpen = new JButton("选择文件");
         bGenerate = new JButton("生成图片");
+        bClear =new JButton("清空文件");
         bOpen.addActionListener(this);
+        bClear.addActionListener(this);
         bGenerate.addActionListener(this);
         this.add(bOpen);
+        this.add(bClear);
         this.add(bGenerate);
         this.add(ps);
         this.setTitle("weka图片生成存储器");
@@ -61,9 +65,9 @@ public class MyFrame extends JFrame implements ActionListener {
                 //
             } else {
 
-                selectedFiles = jfc.getSelectedFiles();
+                filesList.addAll(Arrays.asList(jfc.getSelectedFiles()));
                 System.out.println("已选中文件\n");
-                Arrays.asList(selectedFiles).forEach(x -> {
+                filesList.forEach(x -> {
                     String name = x.getName();
                     System.out.println(name);
                     ta.append(name);
@@ -72,8 +76,8 @@ public class MyFrame extends JFrame implements ActionListener {
             }
 
         } else if (jbt == bGenerate) {//单击生成图片按钮
-            FrameController frameController = new FrameController();
-            frameController.readArffDataAndGenerate(selectedFiles);
+            FrameController frameController = new FrameController(filesList);
+            frameController.readArffDataAndGenerate();
         }
     }
 }
