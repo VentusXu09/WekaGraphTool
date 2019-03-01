@@ -62,7 +62,7 @@ public class FrameController  {
 
                 //Cost Curve
                 Instances ccResult = CostCurve.getCurve(data);
-                CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION, -1);
+                CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.PROBABILITY_COSY_FUNCTION, WekaConstants.NORMALIZED_EXPECTED_COST, -1);
 
 
             } catch (Exception e) {
@@ -72,7 +72,7 @@ public class FrameController  {
         }
         generatePic(ROCxydataSet,WekaConstants.ROC, WekaConstants.FALSE_POSITIVES,WekaConstants.TRUE_POSITIVES);
         generatePic(PRCxydataSet,WekaConstants.PRC,WekaConstants.PRECISION,WekaConstants.RECALL);
-        generatePic(CCxyDataSet, WekaConstants.COST_CURVE, WekaConstants.NORMALIZED_EXPECTED_COST, WekaConstants.PROBABILITY_COSY_FUNCTION);
+        generatePic(CCxyDataSet, WekaConstants.COST_CURVE, WekaConstants.PROBABILITY_COSY_FUNCTION, WekaConstants.NORMALIZED_EXPECTED_COST);
     }
 
     public DefaultXYDataset getData(DefaultXYDataset dataSet, java.util.List xList, java.util.List yList, int index, double auc) {

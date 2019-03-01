@@ -67,6 +67,7 @@ public class MyFrame extends JFrame implements ActionListener {
 
                 filesList.addAll(Arrays.asList(jfc.getSelectedFiles()));
                 System.out.println("已选中文件\n");
+                ta.setText("");
                 filesList.forEach(x -> {
                     String name = x.getName();
                     System.out.println(name);
@@ -78,6 +79,9 @@ public class MyFrame extends JFrame implements ActionListener {
         } else if (jbt == bGenerate) {//单击生成图片按钮
             FrameController frameController = new FrameController(filesList);
             frameController.readArffDataAndGenerate();
+        } else if (jbt == bClear) {
+            filesList.clear();
+            ta.setText("");
         }
     }
 }
