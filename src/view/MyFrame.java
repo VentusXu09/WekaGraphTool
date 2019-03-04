@@ -14,6 +14,8 @@ import weka.core.Attribute;
 import weka.core.Instances;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
@@ -36,6 +38,8 @@ public class MyFrame extends JFrame implements ActionListener {
     private JButton bOpen, bGenerate, bClear;
     private JScrollPane ps;
     ArrayList<File> filesList=new ArrayList<>();
+    private JSlider slider = new JSlider(1, 5, 1);
+    private int lineShape=1;
 
     public MyFrame() {
         jfc.setMultiSelectionEnabled(true);//支持多选
@@ -54,10 +58,25 @@ public class MyFrame extends JFrame implements ActionListener {
         bOpen.addActionListener(this);
         bClear.addActionListener(this);
         bGenerate.addActionListener(this);
+        slider.setMajorTickSpacing(1);//刻度间隔
+
+        // 绘制 刻度 和 标签
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+
+        // 添加刻度改变监听器
+        slider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                System.out.println("当前值: " + slider.getValue());
+                lineShape=slider.getValue();
+            }
+        });
         this.add(bOpen);
         this.add(bClear);
         this.add(bGenerate);
         this.add(ps);
+        this.add(slider);
         this.setTitle("weka图片生成存储器");
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 10));
         this.setSize(500, 500);
@@ -277,6 +296,9 @@ public class MyFrame extends JFrame implements ActionListener {
 
         xylineandshaperenderer.setSeriesOutlinePaint(0, Color.WHITE);
 
+        for(int i=0;i<xyDataset.getSeriesCount();i++) {
+            xylineandshaperenderer.setSeriesStroke(i, new BasicStroke(lineShape));//调整线条粗细
+        }
         xylineandshaperenderer.setUseOutlinePaint(true);
 
         NumberAxis numberaxis = (NumberAxis) xyplot.getDomainAxis();
