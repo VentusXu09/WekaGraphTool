@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class FrameController  {
     private List<File> fileList = new ArrayList<>();
+    private int lineShape = 1;//default
 
     public FrameController(ArrayList<File> selectedFiles) {
         this.fileList = selectedFiles;
@@ -179,7 +180,7 @@ public class FrameController  {
         XYPlot xyplot = (XYPlot) chart.getPlot();
 
 
-        xyplot.setBackgroundPaint(new Color(255, 253, 246));
+        xyplot.setBackgroundPaint(new Color(255, 255, 255));
 
         ValueAxis vaaxis = xyplot.getDomainAxis();
 
@@ -211,6 +212,10 @@ public class FrameController  {
                 .getRenderer();
 
         xylineandshaperenderer.setSeriesOutlinePaint(0, Color.WHITE);
+
+        for(int i=0;i<xyDataset.getSeriesCount();i++) {
+            xylineandshaperenderer.setSeriesStroke(i, new BasicStroke(lineShape));//调整线条粗细
+        }
 
         xylineandshaperenderer.setUseOutlinePaint(true);
 
@@ -273,5 +278,21 @@ public class FrameController  {
             result = getData(result, necList, psfList, index, auc);
         }
         return result;
+    }
+
+    public int getLineShape() {
+        return lineShape;
+    }
+
+    public void setLineShape(int lineShape) {
+        this.lineShape = lineShape;
+    }
+
+    public List<File> getFileList() {
+        return fileList;
+    }
+
+    public void setFileList(List<File> fileList) {
+        this.fileList = fileList;
     }
 }
