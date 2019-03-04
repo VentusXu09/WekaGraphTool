@@ -263,7 +263,7 @@ public class MyFrame extends JFrame implements ActionListener {
         XYPlot xyplot = (XYPlot) chart.getPlot();
 
 
-        xyplot.setBackgroundPaint(new Color(255, 253, 246));
+        xyplot.setBackgroundPaint(new Color(255, 255, 255));
 
         ValueAxis vaaxis = xyplot.getDomainAxis();
 
@@ -299,6 +299,10 @@ public class MyFrame extends JFrame implements ActionListener {
         for(int i=0;i<xyDataset.getSeriesCount();i++) {
             xylineandshaperenderer.setSeriesStroke(i, new BasicStroke(lineShape));//调整线条粗细
         }
+        /*if(xyDataset.getSeriesCount()>=4)
+        {
+            xylineandshaperenderer.setSeriesPaint(3,new Color(237, 145, 33));//
+        }*/
         xylineandshaperenderer.setUseOutlinePaint(true);
 
         NumberAxis numberaxis = (NumberAxis) xyplot.getDomainAxis();
