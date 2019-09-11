@@ -30,6 +30,7 @@ import java.util.List;
 public class FrameController  {
     private List<File> fileList = new ArrayList<>();
     private int lineShape = 1;//default
+    ArrayList ccPoints = new ArrayList<CostCurve.Point>();
 
     public FrameController(ArrayList<File> selectedFiles) {
         this.fileList = selectedFiles;
@@ -62,7 +63,9 @@ public class FrameController  {
                 PRCxydataSet = createCurve(PRCxydataSet, data, index, WekaConstants.RECALL, WekaConstants.PRECISION, aucPRC);
 
                 //Cost Curve
+                //All end points are saved in ccResult
                 Instances ccResult = CostCurve.getCurve(data);
+                ccPoints = CostCurve.Point.getCCPoints(ccResult);
                 CCxyDataSet = createCurve(CCxyDataSet, ccResult, index, WekaConstants.PROBABILITY_COSY_FUNCTION, WekaConstants.NORMALIZED_EXPECTED_COST, -1);
 
 
@@ -71,8 +74,8 @@ public class FrameController  {
             }
             index++;
         }
-        generatePic(ROCxydataSet,WekaConstants.ROC, WekaConstants.FALSE_POSITIVES,WekaConstants.TRUE_POSITIVES);
-        generatePic(PRCxydataSet,WekaConstants.PRC,WekaConstants.PRECISION,WekaConstants.RECALL);
+        generatePic(ROCxydataSet, WekaConstants.ROC, WekaConstants.FALSE_POSITIVES,WekaConstants.TRUE_POSITIVES);
+        generatePic(PRCxydataSet, WekaConstants.PRC,WekaConstants.PRECISION,WekaConstants.RECALL);
         generatePic(CCxyDataSet, WekaConstants.COST_CURVE, WekaConstants.PROBABILITY_COSY_FUNCTION, WekaConstants.NORMALIZED_EXPECTED_COST);
     }
 
@@ -101,10 +104,10 @@ public class FrameController  {
         Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String nowStr = dateFormat.format(now);
-        outputPath = outputPath + File.separator + nowStr + ".png";
+        String picOutputPath = outputPath + File.separator + nowStr + ".png";
         try {
 
-            File outFile = new File(outputPath);
+            File outFile = new File(picOutputPath);
 
             if (!outFile.getParentFile().exists()) {
 
@@ -112,7 +115,7 @@ public class FrameController  {
 
             }
 
-            out = new FileOutputStream(outputPath);
+            out = new FileOutputStream(picOutputPath);
             // 保存为PNG
 
             ChartUtilities.writeChartAsPNG(out, chart, weight, height);
@@ -122,6 +125,22 @@ public class FrameController  {
             // ChartUtilities.writeChartAsJPEG(out, chart, weight, height);
 
             out.flush();
+
+            if (WekaConstants.COST_CURVE.equalsIgnoreCase(chart.getTitle().getText())){
+                String pointOutputPath = outputPath + File.separator + "CostCurvePoints.txt";
+                PrintWriter txtOut = new PrintWriter(pointOutputPath);
+                String ouputText = "x \t y \t threshold\n" ;
+                for (Object o : ccPoints) {
+                    if (o instanceof CostCurve.Point) {
+                        CostCurve.Point point = (CostCurve.Point) o;
+                        ouputText += point.toString();
+                    }
+                }
+                if (null != txtOut) {
+                    txtOut.print(ouputText);
+                    txtOut.close();
+                }
+            }
 
         } catch (FileNotFoundException e) {
 

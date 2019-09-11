@@ -5,8 +5,10 @@ package model;
  */
 
 import weka.core.*;
+import weka.core.pmml.Array;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class for generate CostCurve According to {
@@ -58,5 +60,39 @@ public class CostCurve implements RevisionHandler {
         fv.add(new Attribute(WekaConstants.NORMALIZED_EXPECTED_COST));
         fv.add(new Attribute(WekaConstants.THRESHOLD));
         return new Instances(WekaConstants.COST_CURVE, fv, 100);
+    }
+
+    public static class Point {
+        double x;
+        double y;
+        double threshold;
+
+        public Point(double x, double y, double threshold) {
+            this.x = x;
+            this.y = y;
+            this.threshold = threshold;
+        }
+
+        public Point(double[] point) {
+            this.x = point[0];
+            this.y = point[1];
+            this.threshold = point[2];
+        }
+
+        public static ArrayList<Point> getCCPoints(Instances ccResult) {
+            ArrayList points = new ArrayList();
+            for (Instance instance : ccResult) {
+                if (instance instanceof DenseInstance) {
+                    DenseInstance ccInstance = (DenseInstance) instance;
+                    ArrayList list = new ArrayList();
+                    points.add(new Point(ccInstance.toDoubleArray()));
+                }
+            }
+            return  points;
+        }
+
+        public String toString() {
+            return String.format("%.1f", x) + "\t" + String.format("%.5f", y) + "\t" + String.format("%.5f", threshold) + "\n";
+        }
     }
 }
