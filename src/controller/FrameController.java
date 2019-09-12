@@ -2,6 +2,10 @@ package controller;
 
 import model.CostCurve;
 import model.WekaConstants;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
@@ -20,8 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -126,19 +129,53 @@ public class FrameController  {
 
             out.flush();
 
+            //Blank workbook
+            XSSFWorkbook workbook = new XSSFWorkbook();
+
+            //Create a blank sheet
+            XSSFSheet sheet = workbook.createSheet("Employee Data");
+
+            Map<Integer, Object[]> data = new TreeMap<Integer, Object[]>();
+            data.put(1, new Object[]{"Num", "Point1.x", "Point1.y", "Point2.x", "Point2.y"});
+
+
             if (WekaConstants.COST_CURVE.equalsIgnoreCase(chart.getTitle().getText())){
-                String pointOutputPath = outputPath + File.separator + "CostCurvePoints.txt";
-                PrintWriter txtOut = new PrintWriter(pointOutputPath);
-                String ouputText = "x \t y \t threshold\n" ;
-                for (Object o : ccPoints) {
-                    if (o instanceof CostCurve.Point) {
-                        CostCurve.Point point = (CostCurve.Point) o;
-                        ouputText += point.toString();
+                String pointOutputPath = outputPath + File.separator + "CostCurvePoints.xlsx";
+                Iterator<CostCurve.Point> iterable = ccPoints.iterator();
+                int i = 2;
+                while (iterable.hasNext()) {
+                    data.put(i++, CostCurve.Point.printLineCordinates(i-2, iterable.next(), iterable.next()));
+                }
+
+                Set<Integer> keyset = data.keySet();
+                int rownum = 0;
+                for (Integer key : keyset)
+                {
+                    Row row = sheet.createRow(rownum++);
+                    Object [] objArr = data.get(key);
+                    int cellnum = 0;
+                    for (Object obj : objArr)
+                    {
+                        Cell cell = row.createCell(cellnum++);
+                        if(obj instanceof String)
+                            cell.setCellValue((String)obj);
+                        else if(obj instanceof Integer)
+                            cell.setCellValue((Integer)obj);
                     }
                 }
-                if (null != txtOut) {
-                    txtOut.print(ouputText);
-                    txtOut.close();
+
+                try
+                {
+                    //Write the workbook in file system
+                    FileOutputStream excelOut = new FileOutputStream(new File(pointOutputPath));
+                    if (null == excelOut) return;
+                    workbook.write(excelOut);
+                    excelOut.close();
+                    System.out.println(pointOutputPath + " has been written successfully on disk.");
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
             }
 

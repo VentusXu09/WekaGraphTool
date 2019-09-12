@@ -94,5 +94,16 @@ public class CostCurve implements RevisionHandler {
         public String toString() {
             return String.format("%.1f", x) + "\t" + String.format("%.5f", y) + "\t" + String.format("%.5f", threshold) + "\n";
         }
+
+        public static String printLineCordinate(Point point1, Point point2) {
+            return "(" + String.format("%.1f", point1.x) + ", " + String.format("%.5f", point1.y) + ")\t" +
+                    "(" + String.format("%.1f", point2.x) + ", " + String.format("%.5f", point2.y) + ")\n" ;
+        }
+
+        public static String[] printLineCordinates(int num, Point point1, Point point2) {
+            return new String[]{"" + num,
+                    String.format("%.1f", point1.x), String.format("%.5f", point1.y),
+                    String.format("%.1f", point2.x), String.format("%.5f", point2.y)};
+        }
     }
 }
