@@ -57,7 +57,7 @@ public class FrameController  {
 
                 //AUC for ROC
                 Double auc = ThresholdCurve.getROCArea(data);
-                ROCxydataSet = createCurve(ROCxydataSet, data, index, WekaConstants.FALSE_POSITIVES, WekaConstants.TRUE_POSITIVES, auc);
+                ROCxydataSet = createCurve(ROCxydataSet, data, index, WekaConstants.FALSE_POSITIVE_RATE, WekaConstants.TRUE_POSITIVE_RATE, auc);
 
                 //PRC
 
@@ -77,7 +77,7 @@ public class FrameController  {
             }
             index++;
         }
-        generatePic(ROCxydataSet, WekaConstants.ROC, WekaConstants.FALSE_POSITIVES,WekaConstants.TRUE_POSITIVES);
+        generatePic(ROCxydataSet, WekaConstants.ROC, WekaConstants.FALSE_POSITIVE_RATE,WekaConstants.TRUE_POSITIVE_RATE);
         generatePic(PRCxydataSet, WekaConstants.PRC,WekaConstants.PRECISION,WekaConstants.RECALL);
         generatePic(CCxyDataSet, WekaConstants.COST_CURVE, WekaConstants.PROBABILITY_COSY_FUNCTION, WekaConstants.NORMALIZED_EXPECTED_COST);
     }
